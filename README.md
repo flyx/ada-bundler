@@ -13,27 +13,27 @@ path to the file you requested.
 ## Tool
 
 The command-line tool provided by ada-bundler takes care of the post-compilation
-process of your application. You tell him the directories where the resource files
+process of your application. You tell it the directories where the resource files
 are located, and it copies them into an output folder along with your executable(s).
 This output directory is usually called `bundle`.
 
 ## Backends
 
- * MacOSX: ada-bundler will create an OSX App bundle for your application. You can
-           copy this bundle everywhere and just double-click it to start your
-           application. You can provide a list of binary files (e.g. third-party
-           dependencies) which will be bundled along with your files into the
-           App bundle.
+ * __MacOSX__: ada-bundler will create an OSX App bundle for your application. You can
+   copy this bundle everywhere and just double-click it to start your
+   application. You can provide a list of binary files (e.g. third-party
+   dependencies) which will be bundled along with your files into the
+   App bundle.
            
-           User data files will be stored to and loaded from
-           `~/Library/Application Support/[application-name]`.
- * Windows: ada-bundler will move the executable directly into the `bundle` directory
-            and your resource files into subdirectories. As there is no standard
-            layout of this folder, ada-bundler defines his own standard.
+   User data files will be stored to and loaded from
+   `~/Library/Application Support/[application-name]`.
+ * __Windows__: ada-bundler will move the executable directly into the `bundle` directory
+   and your resource files into subdirectories. As there is no standard
+   layout of this folder, ada-bundler defines his own standard.
             
-            User data files will be located in places as defined by the 
-            [CSIDL (constant special item ID list)][1]
- * Linux: ada-bundler will take the `bundle` folder as root directory and copy your
+   User data files will be located in places as defined by the 
+   [CSIDL (constant special item ID list)][1]
+ * __Linux__: ada-bundler will take the `bundle` folder as root directory and copy your
           files into it according to the [XDG Base Directory Specification][2]
 
 ## Contact
