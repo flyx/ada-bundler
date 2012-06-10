@@ -1,0 +1,28 @@
+library project Ada_Bundler is
+   type Os_Type is
+      ("Windows", "Linux", "MacOSX");
+   Os : Os_Type := external ("OS", "Linux");
+
+   for Library_Name use "ada-bundler";
+   
+   Sources := ("src", "src/lib");
+   case Os is
+      when "MacOSX"  => Sources := Sources & ("src/lib/osx");
+      when "Windows" => Sources := Sources & ("src/lib/windows");
+      when "Linux"   => Sources := Sources & ("src/lib/linux");
+   end case;
+   for Source_Dirs use Sources;
+   
+   for Object_Dir  use "obj";
+   for Library_Dir use "lib";
+
+   package Builder is
+      for Global_Configuration_Pragmas use "configuration.adc";
+   end Builder;
+   
+   package Compiler is
+      for Default_Switches ("ada") use ("-g", "-O2", "-gnatn", "-gnatf",
+                                        "-gnat05", "-gnata");
+   end Compiler;
+
+end Ada_Bundler;

@@ -1,0 +1,18 @@
+project Ada_Bundler is
+   for Library_Name use "ada-bundler";
+
+   for Source_Dirs    use ("src", "src/tool");
+   for Object_Dir     use "obj";
+   for Executable_Dir use "bin";
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-g", "-O2", "-gnatn", "-gnatf",
+                                        "-gnat05", "-gnata");
+   end Compiler;
+   
+   package Builder is
+      for Global_Configuration_Pragmas use "configuration.adc";
+      for Executable ("bundler-tool") use "ada-bundler";
+   end Builder;
+
+end Ada_Bundler;
