@@ -1,12 +1,12 @@
 library project Ada_Bundler is
    type Packaging_Type is
       ("Windows", "Linux_Universal", "MacOSX");
-   Packaging : Packaging_Type := external ("packaging", "Linux");
+   Packaging : Packaging_Type := external ("packaging", "Linux_Universal");
 
    for Library_Name use "ada-bundler";
    
    Sources := ("src", "src/lib");
-   case Os is
+   case Packaging is
       when "MacOSX"          => Sources := Sources & ("src/lib/osx");
       when "Windows"         => Sources := Sources & ("src/lib/windows");
       when "Linux_Universal" => Sources := Sources & ("src/lib/linux");
@@ -24,5 +24,14 @@ library project Ada_Bundler is
       for Default_Switches ("ada") use ("-g", "-O2", "-gnatn", "-gnatf",
                                         "-gnat05", "-gnata");
    end Compiler;
+   
+   package Linker is
+      case Packaging is
+         when "Windows" =>
+            for Linker_Options use ("-lShell32");
+         when "Linux_Universal" => null;
+         when "MacOSX" => null;
+      end case;
+   end Linker;
 
 end Ada_Bundler;
