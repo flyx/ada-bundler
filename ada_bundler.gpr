@@ -1,15 +1,15 @@
 library project Ada_Bundler is
-   type Os_Type is
-      ("Windows", "Linux", "MacOSX");
-   Os : Os_Type := external ("OS", "Linux");
+   type Packaging_Type is
+      ("Windows", "Linux_Universal", "MacOSX");
+   Packaging : Packaging_Type := external ("packaging", "Linux");
 
    for Library_Name use "ada-bundler";
    
    Sources := ("src", "src/lib");
    case Os is
-      when "MacOSX"  => Sources := Sources & ("src/lib/osx");
-      when "Windows" => Sources := Sources & ("src/lib/windows");
-      when "Linux"   => Sources := Sources & ("src/lib/linux");
+      when "MacOSX"          => Sources := Sources & ("src/lib/osx");
+      when "Windows"         => Sources := Sources & ("src/lib/windows");
+      when "Linux_Universal" => Sources := Sources & ("src/lib/linux");
    end case;
    for Source_Dirs use Sources;
    

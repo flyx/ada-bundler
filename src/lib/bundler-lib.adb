@@ -2,7 +2,8 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with Bundler.Lib.OS;
+with Bundler.Configuration;
+with Bundler.OS;
 
 package body Bundler.Lib is
    
@@ -15,19 +16,26 @@ package body Bundler.Lib is
    User_Runtime_Dir         : constant String := OS.User_Runtime_Dir;
    
    procedure Set_Application_Folder_Name (Name : String) is
+      use Bundler.Configuration;
+      
       procedure Free is new Ada.Unchecked_Deallocation (String, String_Access);
       
    begin
-      if Application_Folder_Name /= null then
-         if Application_Folder_Name.all'Length /= Name'Length then
-            Free (Application_Folder_Name);
+      if Cur_Application_Folder_Name /= null then
+         if Cur_Application_Folder_Name.all'Length /= Name'Length then
+            Free (Cur_Application_Folder_Name);
          end if;
       end if;
-      if Application_Folder_Name = null then
-         Application_Folder_Name := new String(Name'Range);
+      if Cur_Application_Folder_Name = null then
+         Cur_Application_Folder_Name := new String(Name'Range);
       end if;
-      Application_Folder_Name.all := Name;
+      Cur_Application_Folder_Name.all := Name;
    end Set_Application_Folder_Name;
+   
+   function Application_Folder_Name return String is
+   begin
+      return Configuration.Cur_Application_Folder_Name.all;
+   end Application_Folder_Name;
    
    procedure Create_Containing_Dir (Path : String) is
       Last_Slash : Natural := Ada.Strings.Fixed.Index (Path, "/",
@@ -39,20 +47,19 @@ package body Bundler.Lib is
 
    function Configuration_Path (Relative_Path : String) return String is
    begin
-      return Global_Configuration_Dir & Application_Folder_Name.all & "/" &
-        Relative_Path;
+      return Global_Configuration_Dir & Relative_Path;
    end Configuration_Path;
    
    function Data_Path (Relative_Path : String) return String is
    begin
-      return Global_Data_Dir & Application_Folder_Name.all & "/" & Relative_Path;
+      return Global_Data_Dir & Relative_Path;
    end Data_Path;
 
    function User_Configuration_Path (Relative_Path     : String;
                                      Create_Containing : Boolean := True)
                                     return String is
       Result_Path : String := User_Configuration_Dir &
-        Application_Folder_Name.all & "/" & Relative_Path;
+        Configuration.Cur_Application_Folder_Name.all & "/" & Relative_Path;
    begin
       if Create_Containing then
          Create_Containing_Dir (Result_Path);
@@ -63,8 +70,8 @@ package body Bundler.Lib is
    function User_Data_Path (Relative_Path     : String;
                             Create_Containing : Boolean := True)
                            return String is
-      Result_Path : String := User_Data_Dir & Application_Folder_Name.all &
-        "/" & Relative_Path;
+      Result_Path : String := User_Data_Dir &
+        Configuration.Cur_Application_Folder_Name.all & "/" & Relative_Path;
    begin
       if Create_Containing then
          Create_Containing_Dir (Result_Path);
@@ -75,8 +82,8 @@ package body Bundler.Lib is
    function User_Cache_Path (Relative_Path     : String;
                              Create_Containing : Boolean := True)
                             return String is
-      Result_Path : String := User_Cache_Dir & Application_Folder_Name.all &
-        "/" & Relative_Path;
+      Result_Path : String := User_Cache_Dir & 
+        Configuration.Cur_Application_Folder_Name.all & "/" & Relative_Path;
    begin
       if Create_Containing then
          Create_Containing_Dir (Result_Path);
@@ -87,8 +94,8 @@ package body Bundler.Lib is
    function User_Runtime_Path (Relative_Path     : String;
                                Create_Containing : Boolean := True)
                               return String is
-      Result_Path : String := User_Runtime_Dir & Application_Folder_Name.all &
-        "/" & Relative_Path;
+      Result_Path : String := User_Runtime_Dir &
+        Configuration.Cur_Application_Folder_Name.all & "/" & Relative_Path;
    begin
       if Create_Containing then
          Create_Containing_Dir (Result_Path);

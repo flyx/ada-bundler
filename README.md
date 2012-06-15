@@ -1,8 +1,14 @@
 # ada-bundler
 
-**ada-bundler** transparently wraps the mechanisms of accessing resource files (e.g. configuration or data files) on different operating systems. It consists of a library
+**ada-bundler** transparently wraps the mechanisms for accessing resource files (e.g. configuration or data files) on different operating systems. It consists of a library
 that provides the application with an interface to access files, and a tool which
 automates the bundling process of the application.
+
+## Current Status
+
+ * MacOSX: In progress
+ * Windows: In progress
+ * Linux_Universal: In progress
 
 ## Library
 
@@ -15,26 +21,29 @@ path to the file you requested.
 The command-line tool provided by ada-bundler takes care of the post-compilation
 process of your application. You tell it the directories where the resource files
 are located, and it copies them into an output folder along with your executable(s).
-This output directory is usually called `bundle`.
+Third-party dynamically linked libraries will also be included in the bundle.
 
 ## Backends
 
  * __MacOSX__: ada-bundler will create an OSX App bundle for your application. You can
    copy this bundle everywhere and just double-click it to start your
-   application. You can provide a list of binary files (e.g. third-party
-   dependencies) which will be bundled along with your files into the
-   App bundle.
+   application.
            
-   User data files will be stored to and loaded from
-   `~/Library/Application Support/[application-name]`.
- * __Windows__: ada-bundler will move the executable directly into the `bundle` directory
-   and your resource files into subdirectories. As there is no standard
-   layout of this folder, ada-bundler defines his own standard.
+   User data files will be stored to and loaded from the 
+   `~/Library` folder.
+ * __Windows__: ada-bundler will move the executable directly into a directory bearing
+   the name of your application, along with your resource files. As there is no standard
+   layout of this folder, ada-bundler defines his own standard. Note that ada-bundler
+   cannot stuff the resource files into your executable, as most Windows applications
+   do. They wouldn't have a path there, which is required by the platform-agnistic
+   interface.
             
    User data files will be located in places as defined by the 
-   [CSIDL (constant special item ID list)][1]
- * __Linux__: ada-bundler will take the `bundle` folder as root directory and copy your
-          files into it according to the [XDG Base Directory Specification][2]
+   [CSIDL (constant special item ID list)][1].
+ * __Linux_Universal__: Similar to _Windows_, but locates user-specific data folders
+   according to the [XDG Base Directory Specification][2].
+
+In the future, backends for RPM and DEB packages may be added.
 
 ## Contact
 

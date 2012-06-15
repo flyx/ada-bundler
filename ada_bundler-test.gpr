@@ -1,0 +1,21 @@
+with "ada_bundler.gpr";
+
+project Ada_Bundler.Test is
+
+   for Main use ("bundler_test-lib");
+   
+   for Source_Dirs use ("test");
+   
+   for Object_Dir  use "obj";
+   for Exec_Dir    use "bin";
+
+   package Builder is
+      for Global_Configuration_Pragmas use "configuration.adc";
+   end Builder;
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-g", "-O2", "-gnatn", "-gnatf",
+                                        "-gnat05", "-gnata");
+   end Compiler;
+
+end Ada_Bundler.Test;
