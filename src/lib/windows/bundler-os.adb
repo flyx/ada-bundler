@@ -1,4 +1,5 @@
 with Ada.Directories;
+with Ada.Environment_Variables;
 
 with Interfaces.C.Strings;
 
@@ -9,9 +10,11 @@ package body Bundler.OS is
    for HResult'Size use 32;
    type DWord   is mod 2**32;
    for DWord'Size use 32;
-   
+
+   Max_Path : constant := 260;
+
    Flag_Create : constant DWord := 0; -- TODO
-   
+
    type CSIDL is (Desktop         ,
                   Internet        ,
                   Programs        ,
@@ -129,58 +132,88 @@ package body Bundler.OS is
                   ComputersNearMe   => 16#003D#,
                   Profiles          => 16#003E#);
    for CSIDL'Size use Interfaces.C.int'Size;
-   
+
    function SHGetFolderPath (hwndOwner : System.Address; Folder : CSIDL;
                              Token     : System.Address; Flags  : DWord;
-                             Path      : access Interfaces.C.Strings.chars_ptr)
+                             Path      : access Interfaces.C.char_array)
                             return HResult;
    pragma Import (StdCall, SHGetFolderPath, "SHGetFolderPathA");
-   
+
    Exec_Dir : constant String := Ada.Directories.Current_Directory;
 
-   function Configuration_Dir return String is
+   function Configuration_Dir (Is_Generic, Append_Name : access Boolean) return String is
    begin
-      return Exec_Dir & "/config/";
+      Is_Generic.all  := True;
+      Append_Name.all := False;
+      return Exec_Dir;
    end Configuration_Dir;
-      
-   function Data_Dir return String is
+
+   function Data_Dir (Is_Generic, Append_Name : access Boolean) return String is
    begin
-      return Exec_Dir & "/data/";
+      Is_Generic.all  := True;
+      Append_Name.all := False;
+      return Exec_Dir;
    end Data_Dir;
-   
+
    function User_Application_Folder return String is
-      C_Path : access Interfaces.C.Strings.chars_ptr
-        := new Interfaces.C.Strings.chars_ptr;
+      use Interfaces.C.Strings;
+      C_Path : aliased Interfaces.C.char_array := Interfaces.C.char_array'(1 .. Max_Path => <>);
+      C_Path_Access : char_array_access := C_Path'Unchecked_Access;
       Result : HResult;
    begin
       Result := SHGetFolderPath (System.Null_Address, Appdata,
-                                 System.Null_Address, 0, C_Path);
-      declare
-         Path : String := Interfaces.C.Strings.Value (C_Path.all);
-      begin
-         Interfaces.C.Strings.Free (C_Path.all);
-         return Path;
-      end;
+                                 System.Null_Address, 0, char_array_access (C_Path_Access));
+      return Value (To_Chars_Ptr (char_array_access (C_Path_Access))) & "\";
    end User_Application_Folder;
-   
-   function User_Configuration_Dir return String is
+
+   function User_Configuration_Dir (Is_Generic, Append_Name : access Boolean) return String is
    begin
+      Is_Generic.all := True;
+      Append_Name.all := True;
       return User_Application_Folder;
    end User_Configuration_Dir;
-   
-   function User_Data_Dir return String is
+
+   function User_Data_Dir (Is_Generic, Append_Name : access Boolean) return String is
    begin
+      Is_Generic.all  := True;
+      Append_Name.all := True;
       return User_Application_Folder;
    end User_Data_Dir;
-   
-   function User_Cache_Dir return String is
+
+   function User_Cache_Dir (Is_Generic, Append_Name : access Boolean) return String is
    begin
-      return "TODO/";
+      Is_Generic.all  := True;
+      Append_Name.all := True;
+      return User_Application_Folder;
    end User_Cache_Dir;
-   
-   function User_Runtime_Dir return String is
+
+   function User_Runtime_Dir (Is_Generic, Append_Name : access Boolean) return String is
+      use Ada.Environment_Variables;
    begin
-      return "TODO/";
+      Is_Generic.all  := False;
+      Append_Name.all := True;
+      if Exists ("TMP") then
+         declare
+            Path : String := Value ("TMP");
+         begin
+            if Ada.Directories.Exists (Path) then
+               Is_Generic.all := False;
+               return Path;
+            end if;
+         end;
+      end if;
+      if Exists ("TEMP") then
+         declare
+            Path : String := Value ("TEMP");
+         begin
+            if Ada.Directories.Exists (Path) then
+               Is_Generic.all := False;
+               return Path;
+            end if;
+         end;
+      end if;
+      Is_Generic.all := True;
+      return User_Application_Folder;
    end User_Runtime_Dir;
 
 end Bundler.OS;
