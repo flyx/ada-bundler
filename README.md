@@ -23,6 +23,15 @@ process of your application. You tell it the directories where the resource file
 are located, and it copies them into an output folder along with your executable(s).
 Third-party dynamically linked libraries will also be included in the bundle.
 
+The tool is implemented in **Python**, for various reasons. Firstly, it is a single
+file which is very portable. Secondly, Python has better support for loading configuration
+files and doing file system operations. The tool takes two optional arguments:
+
+ * The configuration file. This file is written in YAML and defines the files the
+   project consists of. Defaults to `bundle.yaml`.
+ * The target system name. This defaults to the current operating system and can
+   currently take the values `osx`, `windows` and `linux`.
+
 ## Backends
 
  * __MacOSX__: ada-bundler will create an OSX App bundle for your application. You can
