@@ -1,5 +1,5 @@
 
-private package Bundler.OS is
+private package Bundle.OS is
 
    -- Is_Generic and Append_Name are used to return Boolean values. If
    -- Is_Generic is True, the returned folder
@@ -13,4 +13,4 @@ private package Bundler.OS is
    function User_Cache_Dir (Is_Generic, Append_Name : access Boolean) return String;
    function User_Runtime_Dir (Is_Generic, Append_Name : access Boolean) return String;
 
-end Bundler.OS;
+end Bundle.OS;

@@ -1,10 +1,10 @@
 with Ada.Directories;
 with Ada.Environment_Variables;
 
-with Bundler.Configuration;
+with Bundle.Configuration;
 
-package body Bundler.OS is
-   use Bundler.Configuration;
+package body Bundle.OS is
+   use Bundle.Configuration;
 
    -- Path to Resources directory inside App bundle
    -- ONLY WORKS IF THE CURRENT DIRECTORY HAS NOT BEEN ALTERED
@@ -55,4 +55,4 @@ package body Bundler.OS is
       return "/tmp";
    end User_Runtime_Dir;
 
-end Bundler.OS;
+end Bundle.OS;

@@ -5,7 +5,7 @@ with Interfaces.C.Strings;
 
 with System;
 
-package body Bundler.OS is
+package body Bundle.OS is
    type HResult is mod 2**32;
    for HResult'Size use 32;
    type DWord   is mod 2**32;
@@ -216,4 +216,4 @@ package body Bundler.OS is
       return User_Application_Folder;
    end User_Runtime_Dir;
 
-end Bundler.OS;
+end Bundle.OS;

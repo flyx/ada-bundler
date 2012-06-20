@@ -3,7 +3,7 @@
 -- Path strings have to use '/' as folder delimiter.
 --
 -- Return values always return absolute paths.
-package Bundler.Lib is
+package Bundle is
    Path_Creation_Exception : exception;
    
    -- the name the folder of the application should have.
@@ -43,4 +43,4 @@ package Bundler.Lib is
    function User_Runtime_Path (Relative_Path     : String;
                                Create_Containing : Boolean := True)
                               return String;
-end Bundler.Lib;
+end Bundle;

@@ -2,7 +2,7 @@ with "ada_bundler.gpr";
 
 project Ada_Bundler.Test is
 
-   for Main use ("bundler_test-lib");
+   for Main use ("bundle_test");
    
    for Source_Dirs use ("test");
    

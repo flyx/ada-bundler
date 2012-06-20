@@ -1,9 +1,9 @@
 with Ada.Directories;
 with Ada.Environment_Variables;
 
-with Bundler.Configuration;
+with Bundle.Configuration;
 
-package body Bundler.OS is
+package body Bundle.OS is
    
    No_Valid_Dir_Found_Exception : exception;
    
@@ -87,4 +87,4 @@ package body Bundler.OS is
       return "TODO/";
    end User_Runtime_Dir;
 
-end Bundler.OS;
+end Bundle.OS;

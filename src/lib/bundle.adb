@@ -1,10 +1,10 @@
 with Ada.Directories;
 with Ada.Unchecked_Deallocation;
 
-with Bundler.Configuration;
-with Bundler.OS;
+with Bundle.Configuration;
+with Bundle.OS;
 
-package body Bundler.Lib is
+package body Bundle is
    type Path_Retrieval_Function is
      access function (Is_Generic, Append_Name : access Boolean) return String;
 
@@ -34,7 +34,7 @@ package body Bundler.Lib is
    end Get_Dir;
 
    procedure Set_Application_Folder_Name (Name : String) is
-      use Bundler.Configuration;
+      use Bundle.Configuration;
 
       procedure Free is new Ada.Unchecked_Deallocation (String, String_Access);
 
@@ -121,4 +121,4 @@ package body Bundler.Lib is
       return Result_Path;
    end User_Runtime_Path;
 
-end Bundler.Lib;
+end Bundle;
