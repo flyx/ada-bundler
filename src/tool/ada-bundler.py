@@ -16,7 +16,7 @@ def singleValue(containingName, containing, key, required=False):
     else:
         value = containing[key]
     if not isinstance(value, str):
-        raise Exception("Expected single value for {0}".format(key))
+        raise Exception("Expected single string value for {0}".format(key))
     return value
 
 def listValue(containingName, containing, key, required=False):
@@ -63,9 +63,21 @@ class OsxConfigValues (ConfigValues):
     
     def __init__(self, **kwargs):
         super(OsxConfigValues, self).__init__("osx", **kwargs)
-    
-        self.info_plist  = singleValue("osx", kwargs, "info_plist", True)
         
+        self._icon_file  = singleValue("osx", kwargs, "icon", True)
+        self._identifier = singleValue("osx", kwargs, "identifier", True)
+        if not os.path.exists(self._icon_file) or not os.path.isfile(self._icon_file):
+            raise Exception("Icon file {0} doesn't exist!".format(self._icon_file))
+    
+    @property
+    def icon(self):
+        return self._icon_file
+    
+    @property
+    def identifier(self):
+        return self._identifier
+    
+            
 class WindowsConfigValues (ConfigValues):
     
     def __init__(self, **kwargs):
@@ -86,12 +98,13 @@ class Configuration (ConfigValues):
             values = {}
         super(Configuration, self).__init__("global", **values)
         
-        self.osx         = OsxConfigValues(**dictValue("global", values, "osx"))
-        self.windows     = WindowsConfigValues(**dictValue("global", values, "windows"))
-        self.linux       = LinuxConfigValues(**dictValue("global", values, "linux"))
+        self.osx     = OsxConfigValues(**dictValue("global", values, "osx"))
+        self.windows = WindowsConfigValues(**dictValue("global", values, "windows"))
+        self.linux   = LinuxConfigValues(**dictValue("global", values, "linux"))
         
         self._target = target
         self._destination = singleValue("global", values, "destination", True)
+        self._version = singleValue("global", values, "version", True)
 
     @property
     def config_files(self):
@@ -114,7 +127,22 @@ class Configuration (ConfigValues):
             return self._data_files + self.linux._data_files
     
     @property
-    def destination(self):
+    def resource_destination(self):
+        if self._target == Target.OSX:
+            return self._destination + ".app/Contents/Resources"
+        else:
+            return self._destination
+    
+    @property
+    def config_destination(self):
+        return os.path.join(self.resource_destination, "config")
+    
+    @property
+    def data_destination(self):
+        return os.path.join(self.resource_destination, "data")
+    
+    @property
+    def base_destination(self):
         if self._target == Target.OSX:
             return self._destination + ".app"
         else:
@@ -133,6 +161,26 @@ class Configuration (ConfigValues):
         if not value:
             raise Exception("No executable defined for your target")
         return [value]
+    
+    @property
+    def executable_dir(self):
+        if self._target == Target.OSX:
+            return os.path.join(self.base_destination, "Contents/MacOS")
+        else:
+            return self.base_destination
+    
+    @property
+    def target(self):
+        return self._target
+    
+    @property
+    def name(self):
+        return self._destination
+    
+    @property
+    def version(self):
+        return self._version
+        
 
 def copy_files(pathList, destination):
     for path in pathList:
@@ -178,15 +226,62 @@ def load_configuration():
     file.close()
     return configuration
 
+info_plist_template = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en-us</string>
+    <key>CFBundleTypeIconFile</key>
+    <string>docplaintext</string>
+    <key>CFBundleTypeName</key>
+    <string>Plain Text</string>
+    <key>CFBundleExecutable</key>
+    <string>{executable}</string>
+    <key>CFBundleIconFile</key>
+    <string>{iconfile}</string>
+    <key>CFBundleIdentifier</key>
+    <string>{identifier}</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>{name}</string>
+    <key>CFBundlePackageType</key>
+    <string>AAPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>{version}</string>
+    <key>CFBundleVersion</key>
+    <string>{version}</string>
+    {custom}
+</dict>
+</plist>"""
+
 ######################################
 # Main routine
 ######################################
 
 configuration = load_configuration()
-destination = configuration.destination
-if not os.path.exists(destination):
-    os.makedirs(destination)
+if os.path.exists(configuration.base_destination):
+    shutil.rmtree(configuration.base_destination)
 
-copy_files(configuration.config_files, destination)
-copy_files(configuration.data_files, destination)
-copy_files(configuration.executables, destination)
+for path in [configuration.executable_dir, configuration.config_destination,
+             configuration.data_destination]:
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+copy_files(configuration.config_files, configuration.config_destination)
+copy_files(configuration.data_files, configuration.data_destination)
+copy_files(configuration.executables, configuration.executable_dir)
+
+if configuration.target == Target.OSX:
+    copy_files([configuration.osx.icon], configuration.resource_destination)
+    (head, tail) = os.path.split(configuration.executables[0])
+    info_plist = open(os.path.join(configuration.base_destination, "Contents/Info.plist"), 'w')
+    info_plist.write(info_plist_template.format(
+            executable = tail,
+            iconfile   = configuration.osx.icon,
+            identifier = configuration.osx.identifier,
+            name       = configuration.name,
+            version    = configuration.version,
+            custom     = "")) # TODO
+    info_plist.close()
