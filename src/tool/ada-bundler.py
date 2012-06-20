@@ -112,7 +112,7 @@ class Configuration (ConfigValues):
             return self._config_files + self.osx._config_files
         if self._target == Target.Windows:
             return self._config_files + self.windows._config_files
-        if self._target == Target.Linux_Universal:
+        if self._target == Target.Linux:
             return self._config_files + self.linux._config_files
         
         raise Exception("Unknown Target: {0}".format(self._target))
