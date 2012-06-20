@@ -151,11 +151,14 @@ class Configuration (ConfigValues):
     @property
     def executables(self):
         if self._executable:
-            value = self._executable
+			if self._target == Target.Windows:
+				value = self._executable + ".exe"
+			else:
+				value = self._executable
         elif self._target == Target.OSX:
             value = self.osx._executable
         elif self._target == Target.Windows:
-            value = self.windows._executable
+            value = self.windows._executable + ".exe"
         elif self._target == Target.Linux:
             value = self.linux._executable
         if not value:

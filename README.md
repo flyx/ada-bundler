@@ -6,8 +6,8 @@ automates the bundling process of the application.
 
 ## Current Status
 
- * MacOSX: In progress
- * Windows: In progress
+ * MacOSX: Basically working. Memory leak problems.
+ * Windows: Working
  * Linux_Universal: In progress
 
 ## Library
