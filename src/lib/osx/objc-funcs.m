@@ -1,8 +1,8 @@
 #import "objc-funcs.h"
 
-char* get_bundle_path() {
+const char* get_bundle_path() {
    NSString* applicationPath = [[NSBundle mainBundle] bundlePath];
-   char* cPath = [applicationPath UTF8String];
+   const char* cPath = [applicationPath cStringUsingEncoding:NSASCIIStringEncoding];
    [applicationPath release];
    return cPath;
 }

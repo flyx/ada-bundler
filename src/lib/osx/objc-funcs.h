@@ -1,3 +1,3 @@
 #import <Foundation/Foundation.h>
 
-extern char* get_bundle_path();
+extern const char* get_bundle_path();
