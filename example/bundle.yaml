@@ -1,0 +1,17 @@
+# ada-bundler configuration for project "Example"
+name: Example
+version: "0.1"
+executable: bin/example
+data:
+  - global-data-file.txt
+osx:
+  icon: icon.icns
+  identifier: com.example.example
+  data:
+    - osx-data/os-specific-data.txt
+linux:
+  data:
+    - linux-data/os-specific-data.txt
+windows:
+  data:
+    - windows-data/os-specific-data.txt

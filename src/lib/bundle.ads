@@ -5,6 +5,7 @@
 -- Return values always return absolute paths.
 package Bundle is
    Path_Creation_Exception : exception;
+   Environment_Exception   : exception;
    
    -- the name the folder of the application should have.
    procedure Set_Application_Folder_Name (Name : String);

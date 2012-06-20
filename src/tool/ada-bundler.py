@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
 import sys
@@ -53,10 +53,10 @@ class Target (object):
 
 class ConfigValues (object):
     
-    def __init__(self, name, **kwargs):
-        self._config_files = listValue(name, kwargs, "configuration")
-        self._data_files   = listValue(name, kwargs, "data")
-        self._executable   = singleValue(name, kwargs, "executable")
+    def __init__(self, setname, **kwargs):
+        self._config_files = listValue(setname, kwargs, "configuration")
+        self._data_files   = listValue(setname, kwargs, "data")
+        self._executable   = singleValue(setname, kwargs, "executable")
 
 
 class OsxConfigValues (ConfigValues):
@@ -103,7 +103,7 @@ class Configuration (ConfigValues):
         self.linux   = LinuxConfigValues(**dictValue("global", values, "linux"))
         
         self._target = target
-        self._destination = singleValue("global", values, "destination", True)
+        self._destination = singleValue("global", values, "name", True)
         self._version = singleValue("global", values, "version", True)
 
     @property
@@ -191,7 +191,7 @@ def copy_files(pathList, destination):
             (head, tail) = os.path.split(path)
             shutil.copytree(path, os.path.join(destination, tail))
         else:
-            sys.stderr.write("Path not valid: {0}\n".format(file))
+            sys.stderr.write("Path not valid: {0}\n".format(path))
 
 
 def load_configuration():

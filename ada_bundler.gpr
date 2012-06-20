@@ -6,23 +6,37 @@ library project Ada_Bundler is
    for Library_Name use "ada-bundler";
    
    Sources := ("src", "src/lib");
+   Langs   := ("Ada");
    case Packaging is
-      when "MacOSX"          => Sources := Sources & ("src/lib/osx");
-      when "Windows"         => Sources := Sources & ("src/lib/windows");
-      when "Linux_Universal" => Sources := Sources & ("src/lib/linux");
+      when "MacOSX" =>
+         Sources := Sources & ("src/lib/osx");
+         Langs := Langs & ("ObjC");
+      when "Windows" =>
+         Sources := Sources & ("src/lib/windows");
+      when "Linux_Universal" =>
+         Sources := Sources & ("src/lib/linux");
    end case;
    for Source_Dirs use Sources;
    
    for Object_Dir  use "obj";
    for Library_Dir use "lib";
+   for Languages use Langs;
+   
+   package Naming is
+      for Spec_Suffix ("ObjC") use ".h";
+      for Body_Suffix ("ObjC") use ".m";
+   end Naming;
 
    package Builder is
+      for Default_Switches ("ada") use ("-s");
       for Global_Configuration_Pragmas use "configuration.adc";
    end Builder;
    
    package Compiler is
       for Default_Switches ("ada") use ("-g", "-O2", "-gnatn", "-gnatf",
                                         "-gnat05", "-gnata");
+      for Driver ("ObjC") use "gcc";
+      for Default_Switches ("ObjC") use ("-c");
    end Compiler;
    
    package Linker is
@@ -30,7 +44,8 @@ library project Ada_Bundler is
          when "Windows" =>
             for Linker_Options use ("-lShell32");
          when "Linux_Universal" => null;
-         when "MacOSX" => null;
+         when "MacOSX" =>
+            for Linker_Options use ("-Wl,-framework,Foundation,-lobjc");
       end case;
    end Linker;
 

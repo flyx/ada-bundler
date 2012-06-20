@@ -1,18 +1,28 @@
+with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
+
+with Ada.Text_IO;
+
+with Interfaces.C.Strings;
 
 with Bundle.Configuration;
 
 package body Bundle.OS is
    use Bundle.Configuration;
-
+   
+   function Get_Bundle_Path return Interfaces.C.Strings.chars_ptr;
+   pragma Import (C, Get_Bundle_Path, External_Name => "get_bundle_path");
+   
+   Raw_Bundle_Path : Interfaces.C.Strings.chars_ptr
+     := Get_Bundle_Path;
+   Bundle_Path : String := Interfaces.C.Strings.Value (Raw_Bundle_Path);
+   
    -- Path to Resources directory inside App bundle
-   -- ONLY WORKS IF THE CURRENT DIRECTORY HAS NOT BEEN ALTERED
    function Resources_Dir return String is
-      Exec_Dir   : String := Ada.Directories.Current_Directory;
-      Containing : String := Ada.Directories.Containing_Directory (Exec_Dir);
+      use Ada.Directories;
    begin
-      return Ada.Directories.Compose (Containing, "Resources");
+      return Compose (Compose (Bundle_Path, "Contents"), "Resources");
    end Resources_Dir;
 
    function Configuration_Dir (Is_Generic, Append_Name : access Boolean) return String is
