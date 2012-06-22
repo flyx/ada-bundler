@@ -6,6 +6,8 @@ import shutil
 import os
 import os.path
 import yaml
+import math
+import struct
 
 def singleValue(containingName, containing, key, required=False):
     if not containing.has_key(key):
@@ -82,6 +84,11 @@ class WindowsConfigValues (ConfigValues):
     
     def __init__(self, **kwargs):
         super(WindowsConfigValues, self).__init__("windows", **kwargs)
+        
+        self._icon_file = singleValue("windows", kwargs, "icon", True)
+        if not os.path.exists(self._icon_file) or not os.path.isfile(self._icon_file):
+            raise Exception("Icon file {0} doesn't exist!".format(self._icon_file))
+
 
 class LinuxConfigValues (ConfigValues):
     
@@ -259,6 +266,59 @@ info_plist_template = """<?xml version="1.0" encoding="UTF-8"?>
 </dict>
 </plist>"""
 
+
+def updateExecutableIcon(executablePath, iconPath):
+    """
+    Updates the icon of a Windows executable file.
+    """
+    
+    import win32api, win32con
+
+    handle = win32api.BeginUpdateResource(executablePath, False)
+
+    icon = open(iconPath, "rb")
+
+    fileheader = icon.read(6)
+
+    # Read icon data
+    image_type, image_count = struct.unpack("xxHH", fileheader)
+    print "Icon file has type {0} and contains {1} images.".format(image_type, image_count)
+
+    icon_group_desc = struct.pack("<HHH", 0, image_type, image_count)
+    icon_sizes = []
+    icon_offsets = []
+
+    # Read data of all included icons
+    for i in range(1, image_count + 1):
+        imageheader = icon.read(16)
+        width, height, colors, panes, bits_per_pixel, image_size, offset = struct.unpack("BBBxHHLL", imageheader)
+        print "Image is {0}x{1}, has {2} colors in the palette, {3} planes, {4} bits per pixel.".format(
+            width, height, colors, panes, bits_per_pixel);
+        print "Image size is {0}, the image content has an offset of {1}".format(image_size, offset);
+
+        icon_group_desc = icon_group_desc + struct.pack("<BBBBHHIH",
+            width,          # Icon width
+            height,         # Icon height
+            colors,         # Colors (0 for 256 colors)
+            0,              # Reserved2 (must be 0)
+            panes,          # Color planes
+            bits_per_pixel, # Bits per pixel
+            image_size,     # ImageSize
+            i               # Resource ID
+        )
+        icon_sizes.append(image_size)
+        icon_offsets.append(offset)
+
+    # Read icon content and write it to executable file
+    for i in range(1, image_count + 1):
+        icon_content = icon.read(icon_sizes[i - 1])
+        print "Read {0} bytes for image #{1}".format(len(icon_content), i)
+        win32api.UpdateResource(handle, win32con.RT_ICON, i, icon_content)
+
+    win32api.UpdateResource(handle, win32con.RT_GROUP_ICON, "MAINICON", icon_group_desc)
+
+    win32api.EndUpdateResource(handle, False)
+
 ######################################
 # Main routine
 ######################################
@@ -288,3 +348,5 @@ if configuration.target == Target.OSX:
             version    = configuration.version,
             custom     = "")) # TODO
     info_plist.close()
+elif configuration.target == Target.Windows:
+    updateExecutableIcon(configuration.executables[0], configuration.windows.icon)

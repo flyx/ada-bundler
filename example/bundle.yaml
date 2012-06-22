@@ -13,5 +13,6 @@ linux:
   data:
     - linux-data/os-specific-data.txt
 windows:
+  icon: icon.ico
   data:
     - windows-data/os-specific-data.txt
