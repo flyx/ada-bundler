@@ -9,8 +9,7 @@ char* get_bundle_path() {
    // copy string because original one gets released with pool
    char* cPathCopy = (char*)malloc(strlen(cPath) * sizeof(char));
    strcpy(cPathCopy, cPath);
-   [applicationPath release];
    // TODO: how to release without deleting cPathCopy
-   //[pool release];
+   [pool drain];
    return cPathCopy;
 }
