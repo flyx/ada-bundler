@@ -5,7 +5,7 @@ private package Bundle.OS is
    -- Is_Generic is True, the returned folder
    -- is a generic folder that may host other data by this application - for
    -- the requested functionality, a subfolder should be appended.
-   -- Append_Name tells Bundler.Lib whether to append the application's folder.
+   -- Append_Name tells Bundler whether to append the application's folder.
    function Configuration_Dir (Is_Generic, Append_Name : access Boolean) return String;
    function Data_Dir (Is_Generic, Append_Name : access Boolean) return String;
    function User_Configuration_Dir (Is_Generic, Append_Name : access Boolean) return String;
