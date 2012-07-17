@@ -14,9 +14,9 @@ package body Bundle.OS is
    function Get_Bundle_Path return Interfaces.C.Strings.chars_ptr;
    pragma Import (C, Get_Bundle_Path, External_Name => "get_bundle_path");
    
-   Raw_Bundle_Path : Interfaces.C.Strings.chars_ptr
+   Raw_Bundle_Path : constant Interfaces.C.Strings.chars_ptr
      := Get_Bundle_Path;
-   Bundle_Path : String := Interfaces.C.Strings.Value (Raw_Bundle_Path);
+   Bundle_Path : constant String := Interfaces.C.Strings.Value (Raw_Bundle_Path);
    
    -- Path to Resources directory inside App bundle
    function Resources_Dir return String is

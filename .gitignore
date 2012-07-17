@@ -1,7 +1,9 @@
 /bin
 /lib
 /obj
+.DS_Store
 
 /example/bin
 /example/obj
+/example/Example
 /example/Example.app

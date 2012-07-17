@@ -31,6 +31,8 @@ package body Bundle is
             return Path;
          end if;
       end if;
+   exception when Constraint_Error =>
+      raise Environment_Exception with "Application folder name not set!";
    end Get_Dir;
 
    procedure Set_Application_Folder_Name (Name : String) is

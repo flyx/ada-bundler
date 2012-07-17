@@ -4,7 +4,7 @@ with Ada.Environment_Variables;
 with Bundle.Configuration;
 
 package body Bundle.OS is
-   
+
    No_Valid_Dir_Found_Exception : exception;
    
    Home_Dir : constant String := Ada.Environment_Variables.Value ("HOME");

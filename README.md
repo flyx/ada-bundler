@@ -6,9 +6,9 @@ automates the bundling process of the application.
 
 ## Current Status
 
- * MacOSX: In progress
- * Windows: In progress
- * Linux_Universal: In progress
+ * MacOSX: Working
+ * Windows: Working
+ * Linux_Universal: Working, but poorly tested
 
 ## Library
 
