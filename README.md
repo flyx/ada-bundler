@@ -8,7 +8,7 @@ automates the bundling process of the application.
 
  * MacOSX: Working
  * Windows: Working
- * Linux_Universal: Working, but poorly tested
+ * Linux_Universal: Working
 
 ## Library
 

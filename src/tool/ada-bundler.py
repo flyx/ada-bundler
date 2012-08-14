@@ -6,8 +6,11 @@ import shutil
 import os
 import os.path
 import yaml
-import math
 import struct
+
+# ----------
+# Functions for retrieving values from the configuration file
+# ----------
 
 def singleValue(containingName, containing, key, required=False):
     if not containing.has_key(key):
@@ -47,6 +50,9 @@ def dictValue(containingName, containing, key, required=False):
         raise Exception("Expected dict value for {0}".format(key))
     return value
 
+# ----------
+# Classes representing the configuration
+# ----------
     
 class Target (object):
     OSX     = 0
@@ -70,6 +76,7 @@ class OsxConfigValues (ConfigValues):
         self._identifier = singleValue("osx", kwargs, "identifier", True)
         if not os.path.exists(self._icon_file) or not os.path.isfile(self._icon_file):
             raise Exception("Icon file {0} doesn't exist!".format(self._icon_file))
+        self._custom_info_plist = singleValue("osx", kwargs, "custom-info", False)
     
     @property
     def icon(self):
@@ -78,6 +85,10 @@ class OsxConfigValues (ConfigValues):
     @property
     def identifier(self):
         return self._identifier
+    
+    @property
+    def custom_info_plist(self):
+        return self._custom_info_plist
     
             
 class WindowsConfigValues (ConfigValues):
@@ -193,7 +204,10 @@ class Configuration (ConfigValues):
     @property
     def version(self):
         return self._version
-        
+
+# ----------
+# Utility functions
+# ----------
 
 def copy_files(pathList, destination):
     for path in pathList:
@@ -239,6 +253,10 @@ def load_configuration():
     file.close()
     return configuration
 
+# ----------
+# OSX specific
+# ----------
+
 info_plist_template = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -265,10 +283,13 @@ info_plist_template = """<?xml version="1.0" encoding="UTF-8"?>
     <string>{version}</string>
     <key>CFBundleVersion</key>
     <string>{version}</string>
-    {custom}
+{custom}
 </dict>
 </plist>"""
 
+# ----------
+# Windows specific
+# ----------
 
 def updateExecutableIcon(executablePath, iconPath):
     """
@@ -317,9 +338,9 @@ def updateExecutableIcon(executablePath, iconPath):
 
     win32api.EndUpdateResource(handle, False)
 
-######################################
+# ----------
 # Main routine
-######################################
+# ----------
 
 configuration = load_configuration()
 if os.path.exists(configuration.base_destination):
@@ -344,7 +365,7 @@ if configuration.target == Target.OSX:
             identifier = configuration.osx.identifier,
             name       = configuration.name,
             version    = configuration.version,
-            custom     = "")) # TODO
+            custom     = configuration.osx.custom_info_plist))
     info_plist.close()
 elif configuration.target == Target.Windows:
     head, tail = os.path.split(configuration.executables[0])
